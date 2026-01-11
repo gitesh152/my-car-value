@@ -1,0 +1,19 @@
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { Request } from 'express';
+
+@Injectable()
+export class SuperAdminGuard implements CanActivate {
+  constructor(private readonly configService: ConfigService) {}
+
+  canActivate(context: ExecutionContext): boolean {
+    const request = context.switchToHttp().getRequest<Request>();
+    const user = request.currentUser;
+
+    const superAdminEmail = this.configService.get<string>(
+      'application.adminEmail',
+    );
+
+    return user?.email === superAdminEmail;
+  }
+}
